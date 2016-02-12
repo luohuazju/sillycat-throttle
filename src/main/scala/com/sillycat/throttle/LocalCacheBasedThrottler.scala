@@ -14,10 +14,6 @@ class LocalCacheBasedThrottler(var rate: Rate,var target: ActorRef) extends Acto
 
   val throttleKey = "THROTTLE_"
 
-  val builder = CacheBuilder.newBuilder().expireAfterWrite(rate.duration, TimeUnit.SECONDS)
-
-  val throttleBucket = builder.build[java.lang.String, java.lang.Integer]()
-
   //FUNCTION LIMIT_API_CALL(ip)
   //  ts = CURRENT_UNIX_TIME()
   //  keyname = ip+":"+ts
@@ -42,23 +38,23 @@ class LocalCacheBasedThrottler(var rate: Rate,var target: ActorRef) extends Acto
       val timeKey = convertCurrentTime2Key(timeWindows)
       val key = throttleKey + timeKey + msgKey
 
-      throttleBucket.getIfPresent(key) match {
+      LocalCache.throttleBucket.getIfPresent(key) match {
         case count:java.lang.Integer if count >= limitCalls => {
           //delay random and tick self
-          throttleBucket.put(key, count + 1)
+          LocalCache.throttleBucket.put(key, count + 1)
           val delay = calculateDelay(count + 1, limitCalls, timeWindows)
           //tick to self within the delay
           context.system.scheduler.scheduleOnce(delay second, self, msg)
         }
         case count:java.lang.Integer => {
           //count + 1
-          throttleBucket.put(key, count + 1)
+          LocalCache.throttleBucket.put(key, count + 1)
           //pass the ticket
           target ! realMsg
         }
         case _ => {
           //init the count
-          throttleBucket.put(key, new Integer(1))
+          LocalCache.throttleBucket.put(key, new Integer(1))
           //pass the ticket
           target ! realMsg
         }
