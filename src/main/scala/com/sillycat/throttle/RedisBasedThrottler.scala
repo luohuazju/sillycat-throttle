@@ -5,6 +5,7 @@ import akka.actor.Actor
 /**
   * Created by carl on 2/11/16.
   */
+//todo implementing
 class RedisBasedThrottler(var rate: Rate) extends Actor with IncludeLogger{
 
 

@@ -1,9 +1,6 @@
-package com.sillycat.throttle.dummy
+package com.sillycat.throttle.demo
 
 import akka.actor.{Actor, ActorSystem, Props}
-import akka.util.Timeout
-
-import scala.concurrent.duration._
 
 /**
   * Created by carl on 2/11/16.

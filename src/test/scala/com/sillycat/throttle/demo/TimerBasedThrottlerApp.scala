@@ -1,13 +1,15 @@
-package com.sillycat.throttle
+package com.sillycat.throttle.demo
 
-import akka.actor.{Props, ActorSystem, Actor}
-import akka.contrib.throttle.Throttler.SetTarget
-import com.sillycat.throttle.Throttler._
+import akka.actor.{Actor, ActorSystem, Props}
+import akka.contrib.throttle.Throttler.{SetTarget, _}
+import akka.contrib.throttle.TimerBasedThrottler
+
+import scala.concurrent.duration._
 
 /**
   * Created by carl on 2/11/16.
   */
-object RedisBasedThrottlerApp extends App{
+object TimerBasedThrottlerApp extends App{
 
   // A simple actor that prints whatever it receives
   class Printer extends Actor {
@@ -21,7 +23,7 @@ object RedisBasedThrottlerApp extends App{
   val printer = system.actorOf(Props[Printer], "printer")
 
   // The throttler for this example, setting the rate
-  val throttler = system.actorOf(Props(classOf[RedisBasedThrottler], 3 msgsPerSeconds 3))
+  val throttler = system.actorOf(Props(classOf[TimerBasedThrottler], 3 msgsPer 3.second))
 
   // Set the target
   throttler ! SetTarget(Some(printer))
